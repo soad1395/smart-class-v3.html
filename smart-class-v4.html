@@ -1,0 +1,1282 @@
+ <!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>منصّة إدارة الصف الذكية</title>
+<style>
+:root{
+  --bg:#0b1020; --card:#111a35; --card2:#0e1631; --line:#2a3355;
+  --gold:#D4AF37; --txt:#fff; --muted:#b9c0d6;
+  --ok:#2EA043; --warn:#F59F00; --bad:#E24B4B; --vio:#4C2F8C;
+}
+*{box-sizing:border-box}
+body{margin:0;padding:14px;font-family:Tahoma,Arial;background:var(--bg);color:var(--txt)}
+h1{margin:0 0 6px;color:var(--gold);font-weight:1000;text-align:center}
+p{margin:4px 0;color:var(--muted);font-weight:700}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:12px;margin-top:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+.card2{background:var(--card2);border:1px solid var(--line);border-radius:16px;padding:14px}
+.span-12{grid-column:span 12}
+.span-8{grid-column:span 8}
+.span-4{grid-column:span 4}
+@media (max-width:980px){.span-8,.span-4{grid-column:span 12} body{padding:10px}}
+label{display:block;font-size:12px;color:var(--muted);margin:6px 0 4px}
+input,select,textarea{
+  width:100%;padding:10px 11px;border-radius:12px;border:1px solid var(--line);
+  background:#0b1430;color:var(--txt);outline:none
+}
+textarea{min-height:90px;resize:vertical}
+.btns{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+button{
+  border:none;padding:10px 12px;border-radius:999px;cursor:pointer;
+  background:var(--gold);color:#0b1020;font-weight:1000
+}
+button.ghost{background:transparent;color:var(--txt);border:1px solid var(--line)}
+button.ok{background:var(--ok);color:#0b1020}
+button.warn{background:var(--warn);color:#0b1020}
+button.bad{background:var(--bad);color:#fff}
+button.vio{background:var(--vio);color:#fff}
+.hr{height:1px;background:var(--line);margin:12px 0}
+.note{padding:10px;border-radius:12px;background:#0b1430;border:1px dashed var(--line);color:var(--muted);line-height:1.75}
+.small{font-size:12px;color:var(--muted);line-height:1.6}
+.tag{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:1000}
+.t-ok{background:rgba(46,160,67,.18);color:#bff2c7;border:1px solid rgba(46,160,67,.35)}
+.t-warn{background:rgba(245,159,0,.18);color:#ffe1a6;border:1px solid rgba(245,159,0,.35)}
+.t-bad{background:rgba(226,75,75,.18);color:#ffb7b7;border:1px solid rgba(226,75,75,.35)}
+.t-gold{background:rgba(212,175,55,.14);color:#ffe8a6;border:1px solid rgba(212,175,55,.35)}
+.t-vio{background:rgba(76,47,140,.18);color:#d7c7ff;border:1px solid rgba(76,47,140,.35)}
+.hidden{display:none}
+
+/* ===== الغلاف ===== */
+.cover{
+  border-radius:18px;border:1px solid var(--line);overflow:hidden;
+  background:
+    radial-gradient(900px 450px at 10% 18%, rgba(212,175,55,.30), transparent 60%),
+    radial-gradient(900px 520px at 90% 26%, rgba(76,47,140,.30), transparent 60%),
+    radial-gradient(850px 620px at 50% 110%, rgba(46,160,67,.20), transparent 60%),
+    linear-gradient(135deg,#0b1430,#0b1020);
+}
+.coverInner{padding:18px}
+.coverHeader{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.badge{
+  padding:6px 10px;border-radius:999px;border:1px solid rgba(212,175,55,.35);
+  background:rgba(212,175,55,.12);color:#ffe8a6;font-weight:1000;font-size:12px
+}
+.coverHero{
+  margin-top:14px;border-radius:18px;border:1px solid rgba(212,175,55,.25);
+  background:rgba(11,20,48,.55);padding:18px;text-align:center;position:relative;overflow:hidden;
+}
+.coverHero:before{
+  content:"";position:absolute;inset:-40px;
+  background:
+    radial-gradient(200px 200px at 15% 20%, rgba(212,175,55,.20), transparent 60%),
+    radial-gradient(220px 220px at 85% 30%, rgba(76,47,140,.20), transparent 65%),
+    radial-gradient(260px 260px at 50% 95%, rgba(46,160,67,.12), transparent 70%);
+  filter:blur(2px);
+}
+.coverHero>*{position:relative}
+.coverCalligraphy{
+  font-family:"Amiri","Scheherazade New","Noto Naskh Arabic",Tahoma,Arial;
+  font-weight:900;font-size:34px;color:var(--gold);letter-spacing:.5px;margin:0;
+}
+.coverLine{
+  width:min(520px,90%);height:1px;
+  background:linear-gradient(90deg,transparent,rgba(212,175,55,.75),transparent);
+  margin:10px auto;
+}
+.coverIcons{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:10px}
+.pill{
+  padding:6px 10px;border-radius:999px;border:1px solid rgba(42,51,85,.9);
+  background:rgba(14,20,48,.55);color:#e8ecff;font-weight:900;font-size:12px;
+}
+.brandSmall{font-weight:1000;color:#e8ecff;opacity:.95}
+.rights{margin-top:14px;text-align:center;color:rgba(255,255,255,.55);font-size:12px}
+
+/* ===== العجلات (سريعة) ===== */
+.wheelsGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+@media (max-width:980px){.wheelsGrid{grid-template-columns:1fr}}
+.wheelWrap{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.wheel{
+  width:170px;height:170px;border-radius:50%;
+  background:conic-gradient(#D4AF37,#4C2F8C,#2EA043,#F59F00,#E24B4B,#1A2A50,#D4AF37);
+  border:6px solid rgba(255,255,255,.08);
+  box-shadow:0 12px 30px rgba(0,0,0,.35);
+  position:relative;transform:rotate(0deg);
+  transition:transform .95s cubic-bezier(.12,.92,.12,1); /* أسرع */
+}
+.wheel:after{
+  content:"";position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+  width:0;height:0;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:16px solid var(--gold);
+  filter:drop-shadow(0 2px 2px rgba(0,0,0,.4));
+}
+.wheelCenter{
+  position:absolute;inset:0;margin:auto;width:52px;height:52px;border-radius:50%;
+  background:#0b1430;border:2px solid rgba(212,175,55,.55);
+  display:flex;align-items:center;justify-content:center;font-weight:1000;color:var(--gold)
+}
+
+/* ===== المجموعات ===== */
+.groupBox{
+  border:1px solid var(--line);border-radius:14px;padding:10px;background:#0b1430;min-height:170px;
+}
+.groupTitle{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;font-weight:1000}
+.dropHint{
+  margin-top:8px;padding:8px;border-radius:12px;border:1px dashed rgba(212,175,55,.35);
+  color:#ffe8a6;background:rgba(212,175,55,.08);font-size:12px;
+}
+.groupList{margin-top:8px;display:flex;flex-direction:column;gap:6px}
+.stRow{
+  display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  padding:8px;border-radius:12px;border:1px solid rgba(42,51,85,.85);background:rgba(14,20,48,.55);
+}
+.stRow .name{font-weight:1000}
+.miniBtns{display:flex;gap:6px;flex-wrap:wrap}
+.miniBtns button{padding:7px 9px;font-weight:1000}
+
+/* ===== قائمة الصف ===== */
+.roster{
+  border:1px solid var(--line);border-radius:14px;padding:10px;background:#0b1430;
+  max-height:340px;overflow:auto;
+}
+.rosterItem{
+  display:flex;justify-content:space-between;align-items:center;gap:8px;
+  padding:8px;border-radius:12px;border:1px solid rgba(42,51,85,.85);
+  background:rgba(14,20,48,.55);margin:6px 0;
+}
+.drag{cursor:grab;user-select:none}
+
+/* جدول */
+table{width:100%;border-collapse:collapse;margin-top:10px}
+th,td{border:1px solid var(--line);padding:8px;text-align:center;white-space:nowrap}
+th{background:#0b1430}
+</style>
+</head>
+<body>
+
+<!-- الغلاف -->
+<div id="cover" class="cover">
+  <div class="coverInner">
+    <div class="coverHeader">
+      <div class="brandSmall" id="metaPlatformNameTop">منصّة إدارة الصف الذكية</div>
+      <div class="badge">تعمل بدون إنترنت • تحفظ تلقائيًا</div>
+    </div>
+
+    <div class="coverHero">
+      <h1 class="coverCalligraphy">الإدارة الصفية الذكية</h1>
+      <div class="coverLine"></div>
+      <div class="small" id="metaTag" style="margin-top:6px">عجلة • مجموعات • حضور وغياب • تحفيز • رسائل أولياء الأمور</div>
+      <div class="coverIcons">
+        <div class="pill">🎡 عجلة الطالبات</div>
+        <div class="pill">🎡 عجلة المجموعات</div>
+        <div class="pill">✅ حضور</div>
+        <div class="pill">🏅 تحفيز</div>
+        <div class="pill">✉️ أولياء الأمور</div>
+      </div>
+    </div>
+
+    <div class="grid" style="margin-top:12px">
+      <div class="card2 span-6">
+        <div class="small">بيانات المدرسة</div>
+        <div style="margin-top:6px;font-weight:1000" id="metaSchoolName">المتوسطة الثانية والأربعون – الثانوية السادسة والثلاثون</div>
+        <div class="small" style="margin-top:8px" id="metaPrincipalName">مديرة المدرسة: أ/ آمال باربود</div>
+        <div class="small" style="margin-top:4px" id="metaTeacherName">المعلمة: سعاد الغامدي</div>
+        <div class="small" style="margin-top:4px" id="metaTeacherEmailShow">بريد المعلمة: —</div>
+      </div>
+
+      <div class="card2 span-6">
+        <div class="small">مزايا المنصّة</div>
+        <div class="note" style="margin-top:10px">
+          ✅ فصول متعددة + حفظ منفصل لكل فصل<br>
+          ✅ سحب وإفلات للمجموعات<br>
+          ✅ عجلة للطالبات + عجلة للمجموعات<br>
+          ✅ الطالبة السرّية (تعيين/إخفاء/إظهار)<br>
+          ✅ إنذار/تعزيز + نقاط للمجموعة المتعاونة
+        </div>
+      </div>
+    </div>
+
+    <div class="btns" style="margin-top:12px;justify-content:center">
+      <button class="ok" onclick="enterApp()">الدخول للمنصّة</button>
+      <button class="ghost" onclick="toggleMetaEdit()">تعديل بيانات الغلاف</button>
+      <button class="bad" onclick="wipeAll()">حذف البيانات (بأمرك)</button>
+    </div>
+
+    <div id="metaEdit" class="card2 hidden" style="margin-top:12px">
+      <h3 style="margin:0 0 8px;color:var(--gold)">تعديل بيانات الغلاف</h3>
+      <div class="small">تُحفظ محليًا داخل جهازك.</div>
+      <div class="grid" style="margin-top:8px">
+        <div class="span-6">
+          <label>اسم المنصّة</label><input id="inPlatform" />
+          <label>اسم المدرسة</label><input id="inSchool" />
+          <label>اسم المديرة</label><input id="inPrincipal" />
+        </div>
+        <div class="span-6">
+          <label>اسم المعلمة</label><input id="inTeacher" />
+          <label>بريد المعلمة (أو اتركيه للتوليد التلقائي)</label><input id="inEmail" />
+          <label>أسماء الفصول (سطر لكل فصل)</label>
+          <textarea id="inClasses" placeholder="ثانية أول&#10;ثانية ثاني&#10;ثانية ثالث&#10;ثانية رابع"></textarea>
+        </div>
+      </div>
+      <div class="btns" style="margin-top:10px">
+        <button onclick="saveMeta()">حفظ</button>
+        <button class="ghost" onclick="toggleMetaEdit()">إغلاق</button>
+      </div>
+    </div>
+
+    <div class="rights">حقوق الطبع © 2026</div>
+  </div>
+</div>
+
+<!-- التطبيق -->
+<div id="app" class="hidden">
+  <h1 id="appH1">منصّة إدارة الصف الذكية</h1>
+  <p id="appSchool">المتوسطة الثانية والأربعون – الثانوية السادسة والثلاثون</p>
+  <p id="appPrincipal">مديرة المدرسة: أ/ آمال باربود</p>
+  <p id="appTeacher">المعلمة: سعاد الغامدي</p>
+  <p class="small" id="appEmail">بريد المعلمة: —</p>
+
+  <div class="grid">
+
+    <div class="card span-12">
+      <div class="btns">
+        <button class="ghost" onclick="backToCover()">العودة للغلاف</button>
+        <button class="ghost" onclick="exportJSON()">تصدير نسخة (JSON)</button>
+        <button class="ghost" onclick="importJSON()">استيراد نسخة (JSON)</button>
+        <button class="ghost" onclick="printKashf()">طباعة كشف</button>
+        <button class="bad" onclick="wipeAll()">حذف البيانات (بأمرك)</button>
+      </div>
+      <div class="small">ملاحظة: كل البيانات تُحفظ على جهازك فقط.</div>
+    </div>
+
+    <!-- يسار -->
+    <div class="card span-4">
+      <h3 style="margin:0 0 10px">إدارة الفصول</h3>
+
+      <label>اختيار الفصل</label>
+      <select id="classSelect" onchange="saveSelectedClass()"></select>
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 10px">إضافة طالبة</h3>
+      <label>اسم الطالبة</label>
+      <input id="studentName" placeholder="اكتبي اسم الطالبة">
+
+      <div class="btns">
+        <button onclick="addStudent()">إضافة وحفظ</button>
+        <button class="ghost" onclick="bulkAdd()">إضافة جماعية (سطر لكل اسم)</button>
+      </div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">بريد المعلمة (توليد تلقائي)</h3>
+      <div class="btns">
+        <button class="vio" onclick="autoGenerateTeacherEmail()">توليد البريد تلقائيًا</button>
+        <button class="ghost" onclick="saveTeacherEmail()">حفظ البريد</button>
+      </div>
+      <input id="teacherEmail" placeholder="example@school.edu">
+      <div class="small" id="emailHint">—</div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">الطالبة السرّية</h3>
+      <div class="btns">
+        <button class="vio" onclick="setSecret()">تعيين سرّية</button>
+        <button class="ghost" onclick="hideSecret()">إخفاء</button>
+        <button class="ok" onclick="revealSecret()">إظهار السرّية</button>
+        <button class="vio" onclick="newSecret()">سرّية جديدة</button>
+      </div>
+      <div class="note" id="secretBox">—</div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">رسائل أولياء الأمور</h3>
+      <label>اختاري طالبة</label>
+      <select id="msgStudent"></select>
+      <div class="btns">
+        <button class="ghost" onclick="copyParentMsg('praise')">تشجيع</button>
+        <button class="ghost" onclick="copyParentMsg('warn')">تنبيه</button>
+        <button class="ghost" onclick="copyParentMsg('absence')">غياب/تأخر</button>
+      </div>
+      <div class="note" id="parentMsgBox">—</div>
+    </div>
+
+    <!-- يمين -->
+    <div class="card span-8">
+      <h2 style="margin:0;color:var(--gold)">الإدارة الصفّية</h2>
+      <div class="small">سحب وإفلات للمجموعات + عجلة الطالبات + عجلة المجموعات + حضور/غياب/تأخر + نقاط.</div>
+
+      <div class="hr"></div>
+
+      <div class="btns">
+        <button class="warn" onclick="classNoise()">الفصل مزعج (إنذار)</button>
+        <button class="ok" onclick="classCalm()">الفصل متعاون (تعزيز + نقاط لمجموعة)</button>
+        <button class="ghost" onclick="calmDown()">تهدئة (خصم إنذار)</button>
+      </div>
+      <div id="classStatusBox" class="note" style="margin-top:10px">—</div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">قائمة الصف (اسحبي الطالبة للمجموعة)</h3>
+      <div class="roster" id="roster"></div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">🎡 العجلات (واحدة للمجموعات + واحدة للطالبات)</h3>
+
+      <div class="wheelsGrid">
+
+        <!-- عجلة المجموعات -->
+        <div class="card2">
+          <div class="wheelWrap">
+            <div class="wheel" id="wheelGroup"><div class="wheelCenter">👥</div></div>
+            <div style="flex:1;min-width:240px">
+              <div class="btns">
+                <button class="vio" onclick="spinGroupWheel()">تدوير عجلة المجموعات</button>
+                <button class="ghost" onclick="toggleNoRepeatGroups()">منع تكرار المجموعات</button>
+              </div>
+              <div class="note" id="pickGroupResult" style="margin-top:10px">
+                <b>نتيجة المجموعة:</b> —<br><span class="small">تختار من: المبدعات، الطموحات، الموهوبات، المتميزات (مع تجاهل الفارغة).</span>
+              </div>
+              <div class="btns" style="margin-top:8px">
+                <button onclick="awardPointsToChosenGroup(+5)">+5 للمجموعة المختارة</button>
+                <button onclick="awardPointsToChosenGroup(+10)">+10 للمجموعة المختارة</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- عجلة الطالبات -->
+        <div class="card2">
+          <div class="wheelWrap">
+            <div class="wheel" id="wheelStudent"><div class="wheelCenter">🎓</div></div>
+            <div style="flex:1;min-width:240px">
+              <div class="btns">
+                <button class="vio" onclick="spinStudentWheel()">تدوير عجلة الطالبات</button>
+                <button class="ghost" onclick="toggleNoRepeatStudents()">منع تكرار الطالبات</button>
+              </div>
+
+              <div class="btns" style="margin-top:8px">
+                <button class="ghost" onclick="toggleStudentWheelMode()">نمط العجلة: <span id="wheelModeTxt">كل الصف</span></button>
+              </div>
+
+              <div class="note" id="pickStudentResult" style="margin-top:10px">
+                <b>نتيجة الطالبة:</b> —<br><span class="small">إذا كان النمط "مجموعة مختارة": لازم تختارين مجموعة أولاً من عجلة المجموعات.</span>
+              </div>
+
+              <div class="btns" style="margin-top:8px">
+                <button class="ok" onclick="rewardPicked()">+10 للطالبة</button>
+                <button class="warn" onclick="warnPicked()">تنبيه للطالبة</button>
+                <button onclick="awardGroupPointsPicked()">+10 لمجموعة الطالبة</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="hr"></div>
+          <div class="small"><b>محتوى عجلة الطالبات (من أسماء الصف):</b></div>
+          <div class="note" id="wheelStudentsList" style="margin-top:8px">—</div>
+        </div>
+
+      </div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 8px">المجموعات الأربع</h3>
+      <div class="grid">
+        <div class="span-6"><div class="groupBox" id="g1" ondragover="allowDrop(event)" ondrop="dropToGroup(event,1)"></div></div>
+        <div class="span-6"><div class="groupBox" id="g2" ondragover="allowDrop(event)" ondrop="dropToGroup(event,2)"></div></div>
+        <div class="span-6"><div class="groupBox" id="g3" ondragover="allowDrop(event)" ondrop="dropToGroup(event,3)"></div></div>
+        <div class="span-6"><div class="groupBox" id="g4" ondragover="allowDrop(event)" ondrop="dropToGroup(event,4)"></div></div>
+      </div>
+
+      <div class="hr"></div>
+
+      <h3 style="margin:0 0 6px">كشف الحضور</h3>
+      <div class="small">اضغطي حالة الطالبة للتبديل: حاضرة ✅ → غائبة ❌ → متأخرة ⏳ → حاضرة ✅</div>
+      <div style="overflow:auto">
+        <table id="kashfTable"></table>
+      </div>
+
+      <div class="hr"></div>
+      <h3 style="margin:0 0 6px">سجل الحصة</h3>
+      <textarea id="sessionLog" readonly></textarea>
+
+    </div>
+
+  </div>
+</div>
+
+<script>
+/* ===================== التخزين ===================== */
+const STORE="smart_class_all_classes_v3";
+let data = JSON.parse(localStorage.getItem(STORE) || "null");
+
+function defaultData(){
+  return {
+    meta:{
+      platformName:"منصّة إدارة الصف الذكية",
+      school:"المتوسطة الثانية والأربعون – الثانوية السادسة والثلاثون",
+      principal:"مديرة المدرسة: أ/ آمال باربود",
+      teacher:"المعلمة: سعاد الغامدي",
+      email:""
+    },
+    classOrder:["ثانية أول","ثانية ثاني","ثانية ثالث","ثانية رابع"],
+    classes:{
+      "ثانية أول": { students:[], secret:null, secretHidden:true },
+      "ثانية ثاني": { students:[], secret:null, secretHidden:true },
+      "ثانية ثالث": { students:[], secret:null, secretHidden:true },
+      "ثانية رابع": { students:[], secret:null, secretHidden:true }
+    },
+    sessions:{}
+  };
+}
+if(!data) data = defaultData();
+saveSilent();
+
+function saveSilent(){ localStorage.setItem(STORE, JSON.stringify(data)); }
+function save(){ saveSilent(); syncAll(); }
+
+/* ===================== أدوات ===================== */
+const el=(id)=>document.getElementById(id);
+const esc=(s)=>String(s||"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
+const today=()=>new Date().toISOString().slice(0,10);
+const nowTime=()=>new Date().toLocaleTimeString('ar-SA',{hour:'2-digit',minute:'2-digit'});
+
+function classNames(){
+  const set=new Set(data.classOrder || []);
+  Object.keys(data.classes||{}).forEach(k=>set.add(k));
+  return [...set];
+}
+function getClass(name){ return data.classes[name]; }
+
+/* أسماء المجموعات */
+const groupNames = {1:"المبدعات",2:"الطموحات",3:"الموهوبات",4:"المتميزات"};
+function groupIdByName(n){
+  const e = Object.entries(groupNames).find(([k,v])=>v===n);
+  return e ? (+e[0]) : null;
+}
+
+/* ===================== الجلسة اليومية ===================== */
+function makeSession(){
+  return {
+    date: today(),
+    warnings:0, praise:0, noisy:false,
+    noRepeatStudents:true,
+    noRepeatGroups:false,
+    usedStudentIds:[],
+    usedGroups:[],
+    chosenGroup:null,   // 1..4
+    pickedId:null,      // student id
+    wheelMode:"all",    // "all" أو "group" (لطالبات المجموعة المختارة)
+    log:`${today()} — تم بدء جلسة اليوم.\n`,
+    attendance:{},   // id -> 0 present 1 absent 2 late
+    points:{},       // نقاط الطالبة
+    warns:{},        // تنبيهات الطالبة
+    groupPoints:{1:0,2:0,3:0,4:0} // نقاط المجموعات
+  };
+}
+function ensureSession(className){
+  if(!data.sessions[className]) data.sessions[className]=makeSession();
+  if(data.sessions[className].date !== today()){
+    data.sessions[className]=makeSession();
+    data.sessions[className].log=`${today()} — تم إنشاء جلسة جديدة تلقائيًا.\n`;
+  }
+  return data.sessions[className];
+}
+function logAct(className,msg){
+  const s=ensureSession(className);
+  s.log = `${nowTime()} — ${msg}\n` + (s.log||"");
+}
+
+/* ===================== تنقل/غلاف ===================== */
+function enterApp(){
+  el("cover").classList.add("hidden");
+  el("app").classList.remove("hidden");
+  syncAll();
+}
+function backToCover(){
+  el("app").classList.add("hidden");
+  el("cover").classList.remove("hidden");
+  renderMeta();
+}
+function toggleMetaEdit(){
+  el("metaEdit").classList.toggle("hidden");
+  const m=data.meta;
+  el("inPlatform").value=m.platformName||"";
+  el("inSchool").value=m.school||"";
+  el("inPrincipal").value=m.principal||"";
+  el("inTeacher").value=m.teacher||"";
+  el("inEmail").value=m.email||"";
+  el("inClasses").value = classNames().join("\n");
+}
+function saveMeta(){
+  data.meta.platformName = (el("inPlatform").value||"").trim() || "منصّة إدارة الصف الذكية";
+  data.meta.school = (el("inSchool").value||"").trim() || "";
+  data.meta.principal = (el("inPrincipal").value||"").trim() || "";
+  data.meta.teacher = (el("inTeacher").value||"").trim() || "";
+  data.meta.email = (el("inEmail").value||"").trim() || "";
+
+  const lines = (el("inClasses").value||"").split("\n").map(x=>x.trim()).filter(Boolean);
+  if(lines.length){
+    data.classOrder = lines;
+    lines.forEach(name=>{
+      if(!data.classes[name]) data.classes[name]={ students:[], secret:null, secretHidden:true };
+    });
+  }
+  save();
+  toggleMetaEdit();
+  renderMeta();
+}
+function renderMeta(){
+  const m=data.meta;
+  el("metaPlatformNameTop").textContent = m.platformName;
+  el("metaSchoolName").textContent = m.school;
+  el("metaPrincipalName").textContent = m.principal;
+  el("metaTeacherName").textContent = m.teacher;
+  el("metaTeacherEmailShow").textContent = "بريد المعلمة: " + (m.email || "—");
+
+  el("appH1").textContent = m.platformName;
+  el("appSchool").textContent = m.school;
+  el("appPrincipal").textContent = m.principal;
+  el("appTeacher").textContent = m.teacher;
+  el("appEmail").textContent = "بريد المعلمة: " + (m.email || "—");
+}
+
+/* ===================== بريد المعلمة (توليد) ===================== */
+function slugifyEmailBase(name){
+  const cleaned = String(name||"").trim();
+  const latin = cleaned
+    .replace(/[\u064B-\u065F]/g,"")
+    .replace(/\s+/g,".")
+    .replace(/[^\w.\-]/g,"")
+    .toLowerCase();
+  return latin || "teacher";
+}
+function autoGenerateTeacherEmail(){
+  const base = slugifyEmailBase(data.meta.teacher || "teacher");
+  const email = `${base}@school.edu`;
+  data.meta.email = email;
+  el("teacherEmail").value = email;
+  logAct(currentClass(), `تم توليد بريد المعلمة تلقائيًا: ${email}`);
+  save();
+  alert("تم توليد البريد وحفظه.");
+}
+function saveTeacherEmail(){
+  data.meta.email = (el("teacherEmail").value||"").trim();
+  save();
+  alert("تم حفظ البريد.");
+}
+
+/* ===================== اختيار الفصل ===================== */
+function renderClassSelector(){
+  const sel=el("classSelect");
+  sel.innerHTML="";
+  classNames().forEach(name=>{
+    sel.innerHTML += `<option value="${esc(name)}">${esc(name)}</option>`;
+  });
+  if(!sel.value) sel.value = classNames()[0] || "";
+}
+function currentClass(){ return el("classSelect").value; }
+
+/* ===================== أرقام الطالبات ===================== */
+function nextId(cls){
+  let max=0;
+  cls.students.forEach(s=>{
+    const n=parseInt(s.id,10);
+    if(!isNaN(n)) max=Math.max(max,n);
+  });
+  return String(max+1).padStart(3,'0');
+}
+
+/* ===================== الطالبات ===================== */
+function addStudent(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const name=(el("studentName").value||"").trim();
+  if(!name) return;
+  const id = nextId(cls);
+  cls.students.push({ id, name, group: 0 });
+  el("studentName").value="";
+  logAct(cname, `إضافة طالبة: ${name} (${id})`);
+  save();
+}
+function bulkAdd(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const text = prompt("الصقي أسماء الطالبات (كل اسم في سطر):");
+  if(!text) return;
+  const lines = text.split("\n").map(x=>x.trim()).filter(Boolean);
+  if(!lines.length) return;
+  lines.forEach(n=>{
+    const id = nextId(cls);
+    cls.students.push({ id, name:n, group:0 });
+  });
+  logAct(cname, `إضافة جماعية: ${lines.length} طالبة`);
+  save();
+}
+function editStudentName(id,value){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const st=cls.students.find(x=>x.id===id);
+  if(!st) return;
+  st.name = (value||"").trim() || st.name;
+  save();
+}
+function deleteStudent(id){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  if(!confirm("هل تريدين حذف الطالبة؟")) return;
+  cls.students = cls.students.filter(x=>x.id!==id);
+
+  const s=ensureSession(cname);
+  delete s.attendance[id];
+  delete s.points[id];
+  delete s.warns[id];
+  s.usedStudentIds = (s.usedStudentIds||[]).filter(x=>x!==id);
+  if(s.pickedId===id) s.pickedId=null;
+
+  logAct(cname, `حذف طالبة (${id})`);
+  save();
+}
+
+/* ===================== سحب وإفلات ===================== */
+function allowDrop(ev){ ev.preventDefault(); }
+function dragStudent(ev, id){ ev.dataTransfer.setData("studentId", id); }
+function dropToGroup(ev, group){
+  ev.preventDefault();
+  const id = ev.dataTransfer.getData("studentId");
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const st=cls.students.find(x=>x.id===id);
+  if(!st) return;
+  st.group = group;
+  logAct(cname, `إسناد الطالبة (${id}) إلى مجموعة: ${groupNames[group]}`);
+  save();
+}
+
+/* ===================== حضور/غياب/تأخر ===================== */
+function cycleStatus(v){ return (v===0)?1:(v===1)?2:0; }
+function statusTag(v){
+  if(v===0) return `<span class="tag t-ok">حاضرة ✅</span>`;
+  if(v===1) return `<span class="tag t-bad">غائبة ❌</span>`;
+  return `<span class="tag t-warn">متأخرة ⏳</span>`;
+}
+function toggleAttendance(id){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  const cur=s.attendance[id] ?? 0;
+  s.attendance[id] = cycleStatus(cur);
+  logAct(cname, `تحديث حضور (${id})`);
+  save();
+}
+
+/* ===================== نقاط/تنبيه ===================== */
+function addPoints(id,delta){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.points[id]=(s.points[id]??0)+delta;
+  logAct(cname, `نقاط للطالبة (${id}) ${delta>0?`+${delta}`:delta}`);
+}
+function addWarn(id){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.warns[id]=(s.warns[id]??0)+1;
+  logAct(cname, `تنبيه للطالبة (${id}) (+1)`);
+}
+function addGroupPoints(group,delta){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.groupPoints[group]=(s.groupPoints[group]??0)+delta;
+  logAct(cname, `نقاط للمجموعة (${groupNames[group]}) ${delta>0?`+${delta}`:delta}`);
+}
+
+/* ===================== إنذار/تعزيز الصف ===================== */
+function classNoise(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.noisy=true;
+  s.warnings++;
+  el("classStatusBox").innerHTML = `⚠️ <b>إنذار:</b> الفصل مزعج — إجمالي الإنذارات: <b>${s.warnings}</b>`;
+  logAct(cname, `⚠️ إنذار للصف — الإجمالي: ${s.warnings}`);
+  save();
+}
+function classCalm(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+  s.noisy=false;
+  s.praise++;
+
+  // اختيار مجموعة عشوائيًا من غير الفارغة وإضافة نقاط لها
+  let groups=[1,2,3,4].filter(g=>cls.students.some(st=>st.group===g));
+  if(!groups.length) groups=[1,2,3,4];
+  const g = groups[Math.floor(Math.random()*groups.length)];
+  addGroupPoints(g, +10);
+
+  el("classStatusBox").innerHTML = `🌟 <b>تعزيز:</b> الفصل متعاون — تعزيزات: <b>${s.praise}</b> — +10 نقاط لمجموعة <b>${groupNames[g]}</b>`;
+  logAct(cname, `🌟 تعزيز للصف (+10 لمجموعة ${groupNames[g]})`);
+  save();
+}
+function calmDown(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  if(s.warnings>0) s.warnings--;
+  el("classStatusBox").innerHTML = `✅ تهدئة — إجمالي الإنذارات الآن: <b>${s.warnings}</b>`;
+  logAct(cname, `✅ تهدئة: خصم إنذار — الإجمالي: ${s.warnings}`);
+  save();
+}
+
+/* ===================== عجلة المجموعات + عجلة الطالبات ===================== */
+let rotGroup=0, rotStudent=0;
+function spinAnim(elId, which){
+  const add = 720 + Math.floor(Math.random()*720);
+  if(which==="g"){ rotGroup += add; el(elId).style.transform = `rotate(${rotGroup}deg)`; }
+  else { rotStudent += add; el(elId).style.transform = `rotate(${rotStudent}deg)`; }
+}
+
+function toggleNoRepeatStudents(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.noRepeatStudents = !s.noRepeatStudents;
+  logAct(cname, s.noRepeatStudents ? "تم تفعيل منع تكرار الطالبات." : "تم إلغاء منع تكرار الطالبات.");
+  save();
+  alert(s.noRepeatStudents ? "منع تكرار الطالبات: مفعل" : "منع تكرار الطالبات: ملغي");
+}
+function toggleNoRepeatGroups(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.noRepeatGroups = !s.noRepeatGroups;
+  logAct(cname, s.noRepeatGroups ? "تم تفعيل منع تكرار المجموعات." : "تم إلغاء منع تكرار المجموعات.");
+  save();
+  alert(s.noRepeatGroups ? "منع تكرار المجموعات: مفعل" : "منع تكرار المجموعات: ملغي");
+}
+
+function spinGroupWheel(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+
+  let groups=[1,2,3,4].filter(g=>cls.students.some(st=>st.group===g)); // تجاهل الفارغة
+  if(!groups.length) groups=[1,2,3,4];
+
+  if(s.noRepeatGroups){
+    const left = groups.filter(g => !s.usedGroups.includes(g));
+    if(left.length) groups = left;
+    else s.usedGroups = [];
+  }
+
+  const g = groups[Math.floor(Math.random()*groups.length)];
+  s.chosenGroup = g;
+  if(s.noRepeatGroups) s.usedGroups.push(g);
+
+  spinAnim("wheelGroup","g");
+  setTimeout(()=>{
+    el("pickGroupResult").innerHTML = `<b>نتيجة المجموعة:</b> <span class="tag t-vio">${groupNames[g]}</span>`;
+    logAct(cname, `🎯 عجلة المجموعات: ${groupNames[g]}`);
+    save();
+  }, 550);
+}
+
+function toggleStudentWheelMode(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  s.wheelMode = (s.wheelMode==="all") ? "group" : "all";
+  save();
+}
+
+function spinStudentWheel(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+
+  if(!cls.students.length) return alert("أضيفي أسماء الطالبات أولاً.");
+
+  let pool = cls.students.slice();
+
+  // إذا النمط "مجموعة مختارة" نفلتر على المجموعة المختارة
+  if(s.wheelMode==="group"){
+    if(!s.chosenGroup) return alert("اختاري مجموعة أولاً من عجلة المجموعات.");
+    pool = pool.filter(st=>st.group===s.chosenGroup);
+    if(!pool.length) return alert("المجموعة المختارة لا تحتوي طالبات. اسندي طالبات لها أولاً.");
+  }
+
+  if(s.noRepeatStudents){
+    const left = pool.filter(st => !s.usedStudentIds.includes(st.id));
+    if(left.length) pool = left;
+    else s.usedStudentIds = [];
+  }
+
+  const pick = pool[Math.floor(Math.random()*pool.length)];
+  s.pickedId = pick.id;
+  if(s.noRepeatStudents) s.usedStudentIds.push(pick.id);
+
+  spinAnim("wheelStudent","s");
+  setTimeout(()=>{
+    const gTxt = pick.group ? groupNames[pick.group] : "بدون مجموعة";
+    el("pickStudentResult").innerHTML =
+      `<b>نتيجة الطالبة:</b> <span class="tag t-gold">${esc(pick.name)}</span> (${pick.id}) — <span class="tag t-vio">${esc(gTxt)}</span>`;
+    logAct(cname, `🎲 عجلة الطالبات: ${pick.name} (${pick.id})`);
+    save();
+  }, 550);
+}
+
+function rewardPicked(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  if(!s.pickedId) return alert("دوري عجلة الطالبات أولاً.");
+  addPoints(s.pickedId, +10);
+  save();
+}
+function warnPicked(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  if(!s.pickedId) return alert("دوري عجلة الطالبات أولاً.");
+  addWarn(s.pickedId);
+  save();
+}
+function awardGroupPointsPicked(){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  if(!s.pickedId) return alert("دوري عجلة الطالبات أولاً.");
+  const cls=getClass(cname);
+  const st=cls.students.find(x=>x.id===s.pickedId);
+  if(!st || !st.group) return alert("الطالبة غير مسندة لمجموعة.");
+  addGroupPoints(st.group, +10);
+  save();
+}
+function awardPointsToChosenGroup(delta){
+  const cname=currentClass();
+  const s=ensureSession(cname);
+  if(!s.chosenGroup) return alert("اختاري مجموعة أولاً من عجلة المجموعات.");
+  addGroupPoints(s.chosenGroup, delta);
+  save();
+}
+
+/* ===================== الطالبة السرّية ===================== */
+function pickRandomStudent(cls){ return cls.students[Math.floor(Math.random()*cls.students.length)]; }
+function setSecret(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  if(!cls.students.length) return alert("أضيفي طالبات أولاً.");
+  const pick = pickRandomStudent(cls);
+  cls.secret = pick.id;
+  cls.secretHidden = true;
+  el("secretBox").textContent = "تم تعيين طالبة سرّية (مخفية).";
+  logAct(cname, `تعيين طالبة سرّية (${pick.id})`);
+  save();
+}
+function hideSecret(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  if(!cls.secret) return;
+  cls.secretHidden = true;
+  el("secretBox").textContent = "الطالبة السرّية مخفية.";
+  logAct(cname, "إخفاء الطالبة السرّية");
+  save();
+}
+function revealSecret(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  if(!cls.secret) return alert("لم يتم تعيين طالبة سرّية بعد.");
+  const st = cls.students.find(x=>x.id===cls.secret);
+  if(!st) return alert("الطالبة السرّية غير موجودة (قد تكون حُذفت). عيّني سرّية جديدة.");
+  cls.secretHidden = false;
+  el("secretBox").innerHTML = `<b>الطالبة السرّية:</b> ${esc(st.name)} — (${st.id}) — <b>${st.group?groupNames[st.group]:"بدون مجموعة"}</b>`;
+  logAct(cname, `إظهار الطالبة السرّية (${st.id})`);
+  save();
+}
+function newSecret(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  if(!cls.students.length) return alert("أضيفي طالبات أولاً.");
+  const pick = pickRandomStudent(cls);
+  cls.secret = pick.id;
+  cls.secretHidden = false;
+  el("secretBox").innerHTML = `<b>الطالبة السرّية:</b> ${esc(pick.name)} — (${pick.id}) — <b>${pick.group?groupNames[pick.group]:"بدون مجموعة"}</b>`;
+  logAct(cname, `سرّية جديدة: ${pick.name} (${pick.id})`);
+  save();
+}
+
+/* ===================== أولياء الأمور ===================== */
+function renderMsgStudents(cname){
+  const sel=el("msgStudent");
+  sel.innerHTML="";
+  const cls=getClass(cname);
+  if(!cls.students.length){
+    sel.innerHTML=`<option value="">—</option>`;
+    return;
+  }
+  cls.students.forEach((st,i)=>{
+    sel.innerHTML += `<option value="${i}">${esc(st.name)} (${st.id})</option>`;
+  });
+}
+function copyToClipboard(text){
+  navigator.clipboard.writeText(text)
+    .then(()=>alert("تم نسخ النص."))
+    .catch(()=>prompt("انسخي النص:", text));
+}
+function copyParentMsg(type){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+  const idx=el("msgStudent").value;
+  if(idx==="") return alert("اختاري طالبة.");
+
+  const st=cls.students[+idx];
+  const status = s.attendance[st.id] ?? 0;
+  const statusText = status===0 ? "حضور" : status===1 ? "غياب" : "تأخر";
+  const teacherName = (data.meta.teacher || "المعلمة");
+
+  let msg="";
+  if(type==="praise"){
+    msg =
+`ولي أمر الطالبة/ ${st.name} حفظه الله،
+نحيطكم علمًا بأن ابنتكم أظهرت انضباطًا وتفاعلًا مميزًا خلال الحصة، ونشكر دعمكم المتواصل.
+${teacherName}`;
+  }else if(type==="warn"){
+    msg =
+`ولي أمر الطالبة/ ${st.name} حفظه الله،
+لوحظ على ابنتكم ملاحظات سلوكية/تشتت أثناء الحصة، ونأمل منكم المتابعة والتوجيه لتحقيق الانضباط.
+${teacherName}`;
+  }else{
+    msg =
+`ولي أمر الطالبة/ ${st.name} حفظه الله،
+نفيدكم بأن حالة ابنتكم اليوم: ${statusText}.
+نأمل تزويدنا بسبب ذلك، شاكرين تعاونكم.
+${teacherName}`;
+  }
+
+  el("parentMsgBox").textContent = msg;
+  copyToClipboard(msg);
+}
+
+/* ===================== العرض ===================== */
+function renderRoster(cname){
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+  const box=el("roster");
+
+  if(!cls.students.length){
+    box.innerHTML = `<div class="small">لا توجد طالبات بعد. أضيفي أسماء الطالبات أولاً.</div>`;
+    return;
+  }
+
+  const list = cls.students.slice().sort((a,b)=>a.id.localeCompare(b.id));
+
+  box.innerHTML = list.map(st=>{
+    const pts=s.points[st.id] ?? 0;
+    const wrn=s.warns[st.id] ?? 0;
+    const att=s.attendance[st.id] ?? 0;
+    const g = st.group || 0;
+    const gText = g ? `${groupNames[g]}` : "بدون مجموعة";
+    const picked = (s.pickedId===st.id) ? ` <span class="tag t-gold">مختارة</span>` : "";
+    return `
+      <div class="rosterItem">
+        <div style="flex:1">
+          <div>
+            <span class="drag tag t-vio" draggable="true" ondragstart="dragStudent(event,'${st.id}')">اسحب</span>
+            <b>${esc(st.name)}</b>${picked} <span class="small">(${st.id})</span>
+          </div>
+          <div class="small">المجموعة: <b>${esc(gText)}</b> • ${statusTag(att)} • نقاط: <b style="color:var(--gold)">${pts}</b> • تنبيه: <b style="color:var(--warn)">${wrn}</b></div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px;min-width:240px">
+          <input value="${esc(st.name)}" onchange="editStudentName('${st.id}', this.value)" />
+          <div class="btns" style="justify-content:flex-end">
+            <button class="ghost" onclick="toggleAttendance('${st.id}')">الحضور</button>
+            <button class="ok" onclick="addPoints('${st.id}', +5); save()">+5</button>
+            <button class="ok" onclick="addPoints('${st.id}', +10); save()">+10</button>
+            <button class="warn" onclick="addWarn('${st.id}'); save()">تنبيه</button>
+            <button class="bad" onclick="deleteStudent('${st.id}')">حذف</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderGroups(cname){
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+
+  for(let g=1; g<=4; g++){
+    const members = cls.students.filter(st=>st.group===g);
+    const groupPts = s.groupPoints[g] ?? 0;
+
+    const box=el("g"+g);
+    box.innerHTML = `
+      <div class="groupTitle">
+        <div>${groupNames[g]}</div>
+        <div class="small">نقاط المجموعة: <b style="color:var(--gold)">${groupPts}</b></div>
+      </div>
+      <div class="dropHint">اسحبي الطالبة من قائمة الصف وأسقطيها هنا لإسنادها لهذه المجموعة.</div>
+      <div class="groupList" id="g${g}list"></div>
+    `;
+
+    const listEl = el("g"+g+"list");
+    if(!members.length){
+      listEl.innerHTML = `<div class="small">— لا توجد طالبات في هذه المجموعة —</div>`;
+      continue;
+    }
+
+    listEl.innerHTML = members
+      .slice()
+      .sort((a,b)=>a.id.localeCompare(b.id))
+      .map(st=>{
+        const att=s.attendance[st.id] ?? 0;
+        const pts=s.points[st.id] ?? 0;
+        const wrn=s.warns[st.id] ?? 0;
+        return `
+          <div class="stRow">
+            <div>
+              <div class="name">${esc(st.name)} <span class="small">(${st.id})</span></div>
+              <div class="small">${statusTag(att)} • نقاط: <b style="color:var(--gold)">${pts}</b> • تنبيه: <b style="color:var(--warn)">${wrn}</b></div>
+            </div>
+            <div class="miniBtns">
+              <button class="ghost" onclick="toggleAttendance('${st.id}')">الحضور</button>
+              <button class="ok" onclick="addPoints('${st.id}',+10);save()">+10</button>
+              <button class="warn" onclick="addWarn('${st.id}');save()">تنبيه</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+  }
+}
+
+function renderKashfTable(cname){
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+  const t=el("kashfTable");
+
+  if(!cls.students.length){
+    t.innerHTML = `<tr><th>لا توجد طالبات</th></tr>`;
+    return;
+  }
+
+  let rows = `
+    <tr>
+      <th>الرقم</th>
+      <th>الاسم</th>
+      <th>المجموعة</th>
+      <th>الحالة</th>
+      <th>نقاط</th>
+      <th>تنبيهات</th>
+    </tr>
+  `;
+
+  cls.students.slice().sort((a,b)=>a.id.localeCompare(b.id)).forEach(st=>{
+    const stt=s.attendance[st.id] ?? 0;
+    const pts=s.points[st.id] ?? 0;
+    const wrn=s.warns[st.id] ?? 0;
+    const g = st.group || 0;
+    rows += `
+      <tr>
+        <td>${st.id}</td>
+        <td>${esc(st.name)}</td>
+        <td>${g? groupNames[g] : "—"}</td>
+        <td><button class="ghost" onclick="toggleAttendance('${st.id}')">${statusTag(stt)}</button></td>
+        <td><span class="tag t-vio">${pts}</span></td>
+        <td><span class="tag t-warn">${wrn}</span></td>
+      </tr>
+    `;
+  });
+
+  t.innerHTML = rows;
+}
+
+function renderSessionLog(cname){
+  const s=ensureSession(cname);
+  el("sessionLog").value = s.log || "";
+}
+
+function renderSecretBox(cname){
+  const cls=getClass(cname);
+  if(cls.secret && !cls.secretHidden){
+    const st = cls.students.find(x=>x.id===cls.secret);
+    el("secretBox").innerHTML = st ? `<b>الطالبة السرّية:</b> ${esc(st.name)} — (${st.id}) — <b>${st.group?groupNames[st.group]:"بدون مجموعة"}</b>` : "—";
+  }else if(cls.secret && cls.secretHidden){
+    el("secretBox").textContent = "الطالبة السرّية مخفية.";
+  }else{
+    el("secretBox").textContent = "—";
+  }
+}
+
+function renderWheelStudentsList(cname){
+  const cls=getClass(cname);
+  if(!cls.students.length){
+    el("wheelStudentsList").textContent = "—";
+    return;
+  }
+  const names = cls.students
+    .slice()
+    .sort((a,b)=>a.id.localeCompare(b.id))
+    .map(s=>`${s.name} (${s.id})`)
+    .join(" • ");
+  el("wheelStudentsList").textContent = names;
+}
+
+/* ===================== طباعة كشف (حل أوضح) ===================== */
+function printKashf(){
+  const cname=currentClass();
+  const cls=getClass(cname);
+  const s=ensureSession(cname);
+
+  const rows = cls.students.slice().sort((a,b)=>a.id.localeCompare(b.id)).map(st=>{
+    const stt=s.attendance[st.id] ?? 0;
+    const status = stt===0 ? "حاضرة" : stt===1 ? "غائبة" : "متأخرة";
+    const g = st.group || 0;
+    return `<tr>
+      <td>${st.id}</td>
+      <td>${esc(st.name)}</td>
+      <td>${g? groupNames[g] : "—"}</td>
+      <td>${status}</td>
+      <td>${s.points[st.id]??0}</td>
+      <td>${s.warns[st.id]??0}</td>
+    </tr>`;
+  }).join("");
+
+  const html = `
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8">
+<title>كشف ${cname}</title>
+<style>
+body{font-family:Tahoma; padding:18px}
+h2{margin:0 0 8px}
+.small{color:#555;line-height:1.6}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{border:1px solid #333;padding:8px;text-align:center}
+th{background:#f2f2f2}
+</style></head><body>
+<h2>كشف الصف — ${cname}</h2>
+<div class="small">${esc(data.meta.school||"")}</div>
+<div class="small">${esc(data.meta.principal||"")}</div>
+<div class="small">${esc(data.meta.teacher||"")}</div>
+<div class="small">تاريخ الكشف: ${s.date}</div>
+<table>
+<tr><th>الرقم</th><th>الاسم</th><th>المجموعة</th><th>الحالة</th><th>نقاط</th><th>تنبيهات</th></tr>
+${rows}
+</table>
+</body></html>`;
+
+  // طباعة عبر iframe لتقليل مشاكل الحظر
+  const iframe = document.createElement("iframe");
+  iframe.style.position="fixed";
+  iframe.style.right="0";
+  iframe.style.bottom="0";
+  iframe.style.width="0";
+  iframe.style.height="0";
+  iframe.style.border="0";
+  document.body.appendChild(iframe);
+  const doc = iframe.contentWindow.document;
+  doc.open(); doc.write(html); doc.close();
+  iframe.onload = () => {
+    iframe.contentWindow.focus();
+    iframe.contentWindow.print();
+    setTimeout(()=>document.body.removeChild(iframe), 800);
+  };
+}
+
+/* ===================== تصدير/استيراد/حذف ===================== */
+function exportJSON(){
+  const txt=JSON.stringify(data,null,2);
+  copyToClipboard(txt);
+}
+function importJSON(){
+  const txt=prompt("الصقي JSON هنا للاستيراد (سيستبدل البيانات الحالية):");
+  if(!txt) return;
+  try{
+    const obj=JSON.parse(txt);
+    if(!obj || typeof obj!=="object") throw new Error("bad");
+    data=obj;
+    if(!data.meta) data.meta=defaultData().meta;
+    if(!data.classes) data.classes=defaultData().classes;
+    if(!data.sessions) data.sessions={};
+    if(!data.classOrder) data.classOrder=defaultData().classOrder;
+    save();
+    alert("تم الاستيراد بنجاح.");
+  }catch(e){
+    alert("JSON غير صالح.");
+  }
+}
+function wipeAll(){
+  if(confirm("هل تريدين حذف كل البيانات من هذا الجهاز؟")){
+    localStorage.removeItem(STORE);
+    data=defaultData();
+    save();
+    alert("تم حذف البيانات.");
+    el("app").classList.add("hidden");
+    el("cover").classList.remove("hidden");
+    renderMeta();
+  }
+}
+
+/* ===================== مزامنة كاملة ===================== */
+function syncAll(){
+  renderMeta();
+  renderClassSelector();
+
+  const cname=currentClass();
+  const s=ensureSession(cname);
+
+  el("teacherEmail").value = data.meta.email || "";
+  el("emailHint").textContent = "المحفوظ: " + (data.meta.email || "—");
+  el("appEmail").textContent = "بريد المعلمة: " + (data.meta.email || "—");
+
+  if(s.noisy){
+    el("classStatusBox").innerHTML = `⚠️ <b>إنذار:</b> الفصل مزعج — إجمالي الإنذارات: <b>${s.warnings}</b>`;
+  }else if(s.praise>0){
+    el("classStatusBox").innerHTML = `🌟 <b>تعزيز:</b> الفصل متعاون — تعزيزات: <b>${s.praise}</b> — إنذارات: <b>${s.warnings}</b>`;
+  }else{
+    el("classStatusBox").textContent = "—";
+  }
+
+  // تحديث نص نمط عجلة الطالبات
+  el("wheelModeTxt").textContent = (s.wheelMode==="all") ? "كل الصف" : "المجموعة المختارة";
+
+  // تحديث نتائج العجلات (بدون إفساد آخر نتيجة)
+  const chosen = s.chosenGroup ? groupNames[s.chosenGroup] : null;
+  el("pickGroupResult").innerHTML = chosen ? `<b>نتيجة المجموعة:</b> <span class="tag t-vio">${chosen}</span>` : `<b>نتيجة المجموعة:</b> —`;
+
+  if(s.pickedId){
+    const cls=getClass(cname);
+    const st=cls.students.find(x=>x.id===s.pickedId);
+    if(st){
+      const gTxt = st.group ? groupNames[st.group] : "بدون مجموعة";
+      el("pickStudentResult").innerHTML = `<b>نتيجة الطالبة:</b> <span class="tag t-gold">${esc(st.name)}</span> (${st.id}) — <span class="tag t-vio">${esc(gTxt)}</span>`;
+    }else{
+      el("pickStudentResult").innerHTML = `<b>نتيجة الطالبة:</b> —`;
+    }
+  }else{
+    el("pickStudentResult").innerHTML = `<b>نتيجة الطالبة:</b> —`;
+  }
+
+  renderMsgStudents(cname);
+  renderSecretBox(cname);
+  renderRoster(cname);
+  renderGroups(cname);
+  renderKashfTable(cname);
+  renderSessionLog(cname);
+  renderWheelStudentsList(cname);
+}
+
+/* تشغيل */
+renderMeta();
+syncAll();
+  // حفظ آخر فصل تم اختياره
+function saveSelectedClass(){
+  const val = currentClass();
+  localStorage.setItem("last_class", val);
+  syncAll();
+}
+
+// تعديل اختيار الفصل بدون حذف شيء
+const oldRenderClassSelector = renderClassSelector;
+
+renderClassSelector = function(){
+  oldRenderClassSelector();
+
+  const saved = localStorage.getItem("last_class");
+  if(saved && classNames().includes(saved)){
+    document.getElementById("classSelect").value = saved;
+  }
+};
+</script>
+</body>
+</html> وينه مالقيته
